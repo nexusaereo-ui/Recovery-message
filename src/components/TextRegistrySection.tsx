@@ -205,7 +205,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
             <div>
               <label
                 htmlFor="text-field-1"
-                className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5"
+                className="block text-xs font-semibold text-slate-700 mb-1"
               >
                 Casilla 1 · Nombre, Asunto o Identificador
               </label>
@@ -215,8 +215,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
                 id="text-field-1"
                 value={box1}
                 onChange={handleBox1Change}
-                placeholder="Ejemplo: Consulta de soporte / Nota importante / Remitente"
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-xs transition-all"
+                className="w-full max-w-xl h-8.5 rounded-lg border border-slate-300 bg-white px-3 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all"
               />
             </div>
 
@@ -224,17 +223,16 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
             <div>
               <label
                 htmlFor="text-field-2"
-                className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5"
+                className="block text-xs font-semibold text-slate-700 mb-1"
               >
                 Casilla 2 · Mensaje, Detalle o Texto a Registrar
               </label>
               <textarea
                 id="text-field-2"
-                rows={4}
+                rows={2}
                 value={box2}
                 onChange={handleBox2Change}
-                placeholder="Escribe aquí el contenido completo que deseas guardar..."
-                className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-xs transition-all resize-y"
+                className="w-full max-w-xl min-h-[58px] rounded-lg border border-slate-300 bg-white p-2.5 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all resize-y"
               />
             </div>
 
