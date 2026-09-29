@@ -164,7 +164,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
             </span>
           )}
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center justify-center w-full sm:w-auto">
             <button
               type="button"
               onClick={handleNuevoRegistro}
@@ -173,17 +173,6 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
               <RefreshCw className="w-4 h-4" />
               <span>Ingresar Nuevo Registro</span>
             </button>
-
-            {onOpenAdmin && (
-              <button
-                type="button"
-                onClick={onOpenAdmin}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-sm transition-all active:scale-95 cursor-pointer border border-slate-200"
-              >
-                <FileText className="w-4 h-4 text-slate-600" />
-                <span>Ver en Panel de Admin</span>
-              </button>
-            )}
           </div>
         </div>
       ) : (

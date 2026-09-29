@@ -1,43 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { TextRegistrySection } from './components/TextRegistrySection';
 import { AdminPanel } from './components/AdminPanel';
+import { FooterEmblems } from './components/FooterEmblems';
 import { 
   ClipboardList, 
-  ShieldCheck, 
   Database, 
-  CheckCircle, 
   Server, 
-  Search, 
-  ArrowRight,
-  Download
+  Download,
+  ShieldAlert
 } from 'lucide-react';
 
 export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [recordCount, setRecordCount] = useState<number>(0);
-
-  // Fetch record count for header badge
-  const updateCount = async () => {
-    try {
-      const res = await fetch('/api/records');
-      const data = await res.json();
-      if (data && typeof data.count === 'number') {
-        setRecordCount(data.count);
-      }
-    } catch {
-      // ignore
-    }
-  };
-
-  useEffect(() => {
-    updateCount();
-    const interval = setInterval(updateCount, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col antialiased">
-      {/* Top Navigation Bar */}
+      {/* Top Navigation Bar (Sin accesos al panel de admin) */}
       <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -54,24 +32,11 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Servidor Activo</span>
+              <span>Servicio Activo</span>
             </div>
-
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-medium shadow-sm transition-all active:scale-95 cursor-pointer"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Panel Admin</span>
-              {recordCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-indigo-500 text-white text-[10px] font-bold">
-                  {recordCount}
-                </span>
-              )}
-            </button>
           </div>
         </div>
       </header>
@@ -84,15 +49,12 @@ export default function App() {
             Almacena y Sincroniza tus Textos
           </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Ingresa información en las casillas a continuación. Los datos quedan guardados de forma persistente y pueden ser consultados o exportados desde cualquier dispositivo a través del Panel de Administración.
+            Ingresa información en las casillas a continuación. Los datos quedan guardados de forma persistente y sincronizados en tiempo real.
           </p>
         </div>
 
         {/* Text Registry Section */}
-        <TextRegistrySection
-          onOpenAdmin={() => setIsAdminOpen(true)}
-          onSyncActivity={() => updateCount()}
-        />
+        <TextRegistrySection />
 
         {/* Informational Feature Highlights */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
@@ -101,7 +63,7 @@ export default function App() {
               <Database className="w-5 h-5" />
             </div>
             <h3 className="text-sm font-bold text-slate-900 mb-1">
-              Persistencia en Servidor
+              Persistencia Inmediata
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               Cada texto que envías se guarda de forma segura en la base de datos para no perder ninguna información.
@@ -116,7 +78,7 @@ export default function App() {
               Acceso Multidispositivo
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Accede al Panel de Administración desde cualquier computadora o teléfono móvil para ver los registros actualizados.
+              Toda la información registrada queda disponible para consulta centralizada desde cualquier dispositivo conectado.
             </p>
           </div>
 
@@ -128,51 +90,27 @@ export default function App() {
               Búsqueda y Exportación
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Filtra por palabras clave en tiempo real y descarga tus registros completos en formato JSON o CSV.
+              Los registros se pueden consultar y exportar en cualquier momento en formatos universales JSON y CSV.
             </p>
           </div>
-        </div>
-
-        {/* Quick Admin Callout */}
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <h4 className="text-base font-bold text-indigo-950">
-              ¿Deseas revisar o exportar todos los textos guardados?
-            </h4>
-            <p className="text-xs text-indigo-800 mt-1">
-              Abre el Panel de Administración para consultar el historial completo y detalles de cada registro.
-            </p>
-          </div>
-          <button
-            onClick={() => setIsAdminOpen(true)}
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs sm:text-sm shadow-xs transition-all active:scale-95 cursor-pointer"
-          >
-            <span>Abrir Panel de Administración</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-slate-200 bg-white py-6">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-emerald-600" />
-            <span>Gestor de Textos y Registros © 2026</span>
+      {/* Footer con el ÚNICO acceso al panel de administración mediante el icono original al final de la página */}
+      <footer className="mt-auto border-t border-slate-200 bg-white py-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col items-center justify-center gap-4 text-center">
+          {/* Fila de 5 logos en el pie de página (dos a cada lado y el central con el acceso exclusivo al admin) */}
+          <div className="flex flex-col items-center gap-2">
+            <FooterEmblems onAdminClick={() => setIsAdminOpen(true)} />
           </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="text-indigo-600 hover:text-indigo-800 font-medium cursor-pointer"
-            >
-              Acceso Administrador
-            </button>
-          </div>
+          <p className="text-xs text-slate-400 mt-2">
+            Gestor de Textos y Registros © 2026. Todos los derechos reservados.
+          </p>
         </div>
       </footer>
 
-      {/* Real-time Administrator Panel */}
+      {/* Panel de Administración (Se abre únicamente desde el icono del pie de página) */}
       <AdminPanel
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
