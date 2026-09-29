@@ -44,13 +44,13 @@ export const ScreenshotCarousel: React.FC = () => {
           <div className="aspect-[9/16] relative overflow-hidden bg-slate-950">
             <img
               src={chatPreviewImg}
-              alt="WAMR Recuperar Mensajes Chat"
+              alt="RECOV Restaurar Mensajes Chat"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            {/* Overlay badge */}
-            <div className="absolute top-3 left-3 right-3 bg-teal-900/80 backdrop-blur-md border border-teal-500/30 p-2.5 rounded-xl text-white text-center">
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-teal-300">WAMR</p>
-              <p className="text-xs font-semibold">Recuperar Mensajes Borrados</p>
+            {/* Overlay badge with new brand */}
+            <div className="absolute top-3 left-3 right-3 bg-teal-900/85 backdrop-blur-md border border-teal-500/30 p-2.5 rounded-xl text-white text-center shadow-lg">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-teal-300">RECOV</p>
+              <p className="text-xs font-semibold">Restaurar Mensajes Borrados</p>
             </div>
           </div>
         </div>
@@ -59,13 +59,13 @@ export const ScreenshotCarousel: React.FC = () => {
         <div className="snap-start shrink-0 w-64 sm:w-72 rounded-2xl overflow-hidden border border-slate-200 bg-gradient-to-b from-teal-700 via-teal-800 to-emerald-900 p-4 shadow-lg text-white flex flex-col justify-between aspect-[9/16]">
           <div className="text-center pt-2">
             <span className="text-[11px] uppercase tracking-widest font-extrabold text-teal-300">
-              WAMR
+              RECOV
             </span>
             <h3 className="text-lg font-black leading-tight mt-1">
-              100,000+
+              150,000+
             </h3>
             <p className="text-xs text-teal-100 font-medium">
-              Usuarias felices
+              Usuarios satisfechos
             </p>
             <div className="flex justify-center gap-1 text-amber-300 my-2">
               {'★★★★★'.split('').map((s, i) => (
@@ -81,17 +81,17 @@ export const ScreenshotCarousel: React.FC = () => {
               <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] font-bold">
                 ✓
               </div>
-              <span className="text-xs font-medium">Sophie Watson</span>
+              <span className="text-xs font-medium">Elena Morales</span>
             </div>
 
             <div className="space-y-1.5 text-[11px]">
               <div className="bg-white/10 p-2 rounded-lg text-slate-300 flex items-center gap-1.5">
                 <span className="text-xs">🚫</span>
-                <span className="italic line-through">This message was deleted</span>
+                <span className="italic line-through">Este mensaje fue eliminado</span>
               </div>
               <div className="bg-emerald-600/90 p-2 rounded-lg text-white font-medium shadow-xs">
-                <p className="text-[9px] text-emerald-200 font-bold">Recuperado por WAMR:</p>
-                <p>"Hello! I was waiting for you from last 10 minutes..."</p>
+                <p className="text-[9px] text-emerald-200 font-bold">Recuperado por RECOV:</p>
+                <p>"¡Hola! Te estuve esperando los últimos 15 minutos..."</p>
               </div>
             </div>
           </div>
@@ -109,11 +109,11 @@ export const ScreenshotCarousel: React.FC = () => {
           <div className="aspect-[9/16] relative overflow-hidden bg-slate-950">
             <img
               src={mediaPreviewImg}
-              alt="WAMR Recuperar Fotos y Videos"
+              alt="RECOV Recuperar Fotos y Videos"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            <div className="absolute top-3 left-3 right-3 bg-teal-900/80 backdrop-blur-md border border-teal-500/30 p-2.5 rounded-xl text-white text-center">
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-teal-300">MULTIMEDIA</p>
+            <div className="absolute top-3 left-3 right-3 bg-teal-900/85 backdrop-blur-md border border-teal-500/30 p-2.5 rounded-xl text-white text-center shadow-lg">
+              <p className="text-[11px] font-extrabold uppercase tracking-wide text-teal-300">RECOV MULTIMEDIA</p>
               <p className="text-xs font-semibold">Fotos, Videos y Audios</p>
             </div>
           </div>
@@ -129,7 +129,7 @@ export const ScreenshotCarousel: React.FC = () => {
               Recuperación Automática de Mensajes
             </h3>
             <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-              Detecta mensajes eliminados a través del historial de notificaciones y los guarda de forma segura en tu dispositivo.
+              Detecta mensajes suprimidos a través del historial de notificaciones y los almacena de forma segura en tu dispositivo.
             </p>
           </div>
 
@@ -138,13 +138,13 @@ export const ScreenshotCarousel: React.FC = () => {
               <div className="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-300 shrink-0">
                 <MessageSquare className="w-3.5 h-3.5" />
               </div>
-              <span>Recupera textos eliminados</span>
+              <span>Restaura textos eliminados</span>
             </div>
             <div className="flex items-center gap-2.5 text-xs text-slate-200">
               <div className="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-300 shrink-0">
                 <Image className="w-3.5 h-3.5" />
               </div>
-              <span>Restaura archivos adjuntos</span>
+              <span>Recupera archivos adjuntos</span>
             </div>
             <div className="flex items-center gap-2.5 text-xs text-slate-200">
               <div className="w-6 h-6 rounded-lg bg-teal-500/20 flex items-center justify-center text-teal-300 shrink-0">

@@ -25,12 +25,12 @@ export const TechnicalSpecs: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8 text-sm">
           <div>
             <p className="text-xs text-slate-500 font-medium">Vendedor</p>
-            <p className="text-slate-900 font-semibold mt-0.5">Vivek Warde</p>
+            <p className="text-slate-900 font-semibold mt-0.5">Kryon Softworks LLC</p>
           </div>
 
           <div>
             <p className="text-xs text-slate-500 font-medium">Tamaño</p>
-            <p className="text-slate-900 font-semibold mt-0.5">67.3 MB</p>
+            <p className="text-slate-900 font-semibold mt-0.5">64.2 MB</p>
           </div>
 
           <div>
@@ -48,7 +48,7 @@ export const TechnicalSpecs: React.FC = () => {
           <div>
             <p className="text-xs text-slate-500 font-medium">Idiomas</p>
             <p className="text-slate-900 font-semibold mt-0.5">
-              Español y 11 más ▾
+              Español y 12 más ▾
             </p>
           </div>
 
@@ -69,7 +69,7 @@ export const TechnicalSpecs: React.FC = () => {
           <div>
             <p className="text-xs text-slate-500 font-medium">Copyright</p>
             <p className="text-slate-900 font-semibold mt-0.5">
-              © 2026 Vivek Warde
+              © 2026 Kryon Softworks LLC
             </p>
           </div>
         </div>
@@ -84,11 +84,11 @@ export const TechnicalSpecs: React.FC = () => {
         </div>
       </div>
 
-      {/* Más de Vivek Warde */}
+      {/* Más de Kryon Softworks LLC */}
       <div>
         <div className="flex items-center gap-1 mb-4 cursor-pointer group">
           <h3 className="text-xl font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">
-            Más de Vivek Warde
+            Más de Kryon Softworks LLC
           </h3>
           <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
         </div>
@@ -102,14 +102,14 @@ export const TechnicalSpecs: React.FC = () => {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900">
-                  Guardador de Estado: Descargar
+                  Guardador de Estados: Descargar
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Descargar Status Saver...
+                  Descargar Status Saver Pro
                 </p>
               </div>
             </div>
-            <button className="px-4 py-1 rounded-full bg-slate-200 hover:bg-slate-300 text-blue-600 font-bold text-xs uppercase tracking-wider transition-colors">
+            <button className="px-4 py-1.5 rounded-full bg-slate-200 hover:bg-slate-300 text-blue-600 text-xs font-bold transition-colors">
               Ver
             </button>
           </div>
@@ -117,19 +117,19 @@ export const TechnicalSpecs: React.FC = () => {
           {/* App 2 */}
           <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-white shadow-md">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-700 to-cyan-600 flex items-center justify-center text-white shadow-md">
                 <QrCode className="w-7 h-7" />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900">
-                  WT Scan: Escaneo Web, Hub Dual
+                  DualWeb Scan: Hub Multicuenta
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Múltiples cuentas: Escán...
+                  Múltiples cuentas: Escaneo directo
                 </p>
               </div>
             </div>
-            <button className="px-4 py-1 rounded-full bg-slate-200 hover:bg-slate-300 text-blue-600 font-bold text-xs uppercase tracking-wider transition-colors">
+            <button className="px-4 py-1.5 rounded-full bg-slate-200 hover:bg-slate-300 text-blue-600 text-xs font-bold transition-colors">
               Ver
             </button>
           </div>
