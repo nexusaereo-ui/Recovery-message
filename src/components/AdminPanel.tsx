@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { UserRecord } from '../types';
 import { collection, onSnapshot, doc, deleteDoc, getDocs, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { safeStorage } from '../lib/storage';
 import { 
   X, 
   Search, 
@@ -66,17 +67,14 @@ function mergeRecordsList(existing: UserRecord[], incoming: UserRecord[]): UserR
     .filter((r) => (r.box1 && r.box1.trim().length > 0) || (r.box2 && r.box2.trim().length > 0) || (r.history && r.history.length > 0))
     .sort((a, b) => b.lastUpdated - a.lastUpdated);
 
-  try {
-    localStorage.setItem('admin_cached_records', JSON.stringify(list));
-  } catch {}
-
+  safeStorage.setItem('admin_cached_records', JSON.stringify(list));
   return list;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
   const [records, setRecords] = useState<UserRecord[]>(() => {
     try {
-      const saved = localStorage.getItem('admin_cached_records');
+      const saved = safeStorage.getItem('admin_cached_records');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -117,11 +115,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
 
     // 1. Subscribe to Cloud Firestore collection for real-time multi-device sync
     let unsubscribeFirestore: (() => void) | null = null;
-    try {
-      const q = collection(db, 'textRecords');
-      unsubscribeFirestore = onSnapshot(
-        q,
-        (snapshot) => {
+    if (db) {
+      try {
+        const q = collection(db, 'textRecords');
+        unsubscribeFirestore = onSnapshot(
+          q,
+          (snapshot) => {
           const cloudRecords: UserRecord[] = [];
           snapshot.forEach((docSnap) => {
             const data = docSnap.data();
@@ -155,6 +154,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
       console.warn('Firestore subscription init error:', err);
       fetchRecords();
     }
+  } else {
+    fetchRecords();
+  }
 
     // 2. Connect fallback SSE / REST if running on local server
     try {
@@ -236,43 +238,47 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
 
   const handleDeleteRecord = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      await deleteDoc(doc(db, 'textRecords', id));
-    } catch (err) {
-      console.warn('Firestore delete error:', err);
+    if (db) {
+      try {
+        await deleteDoc(doc(db, 'textRecords', id));
+      } catch (err) {
+        console.warn('Firestore delete error:', err);
+      }
     }
     try {
       await fetch(`/api/records/${id}`, { method: 'DELETE' });
     } catch {}
     setRecords((prev) => {
       const updated = prev.filter((r) => r.id !== id);
-      try {
-        localStorage.setItem('admin_cached_records', JSON.stringify(updated));
-      } catch {}
+      safeStorage.setItem('admin_cached_records', JSON.stringify(updated));
       return updated;
     });
   };
 
   const handleClearAll = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, 'textRecords'));
-      const batchDeletes = snapshot.docs.map((d) => deleteDoc(d.ref));
-      await Promise.all(batchDeletes);
-    } catch (err) {
-      console.warn('Firestore clear error:', err);
+    if (db) {
+      try {
+        const snapshot = await getDocs(collection(db, 'textRecords'));
+        const batchDeletes = snapshot.docs.map((d) => deleteDoc(d.ref));
+        await Promise.all(batchDeletes);
+      } catch (err) {
+        console.warn('Firestore clear error:', err);
+      }
     }
     try {
       await fetch('/api/records', { method: 'DELETE' });
     } catch {}
-    try {
-      localStorage.removeItem('admin_cached_records');
-    } catch {}
+    safeStorage.removeItem('admin_cached_records');
     setRecords([]);
     setShowClearConfirm(false);
   };
 
   const copyToClipboard = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
+    try {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+    } catch {}
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 1800);
   };

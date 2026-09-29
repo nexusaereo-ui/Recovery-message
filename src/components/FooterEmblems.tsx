@@ -13,7 +13,7 @@ export const FooterEmblems: React.FC<FooterEmblemsProps> = ({ onAdminClick }) =>
         title="Módulo de Persistencia"
       >
         <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-radial from-indigo-500/10 via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-indigo-500/10 opacity-50" />
           <svg
             viewBox="0 0 100 100"
             className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-400/80"
@@ -50,7 +50,7 @@ export const FooterEmblems: React.FC<FooterEmblemsProps> = ({ onAdminClick }) =>
         title="Canal de Sincronización"
       >
         <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-radial from-indigo-500/10 via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-indigo-500/10 opacity-50" />
           <svg
             viewBox="0 0 100 100"
             className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-400/80"
@@ -85,8 +85,8 @@ export const FooterEmblems: React.FC<FooterEmblemsProps> = ({ onAdminClick }) =>
       >
         <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-800 p-0.5 shadow-md group-hover:shadow-lg group-hover:from-indigo-900 group-hover:to-slate-700 transition-all duration-300">
           <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center overflow-hidden relative">
-            {/* Ambient Radial Glow */}
-            <div className="absolute inset-0 bg-radial from-indigo-500/20 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+            {/* Ambient Glow */}
+            <div className="absolute inset-0 bg-indigo-500/20 opacity-60 group-hover:opacity-100 transition-opacity" />
 
             {/* Original Hexagonal Nexus Shield */}
             <svg
@@ -131,7 +131,7 @@ export const FooterEmblems: React.FC<FooterEmblemsProps> = ({ onAdminClick }) =>
         title="Red de Enlaces"
       >
         <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-radial from-indigo-500/10 via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-indigo-500/10 opacity-50" />
           <svg
             viewBox="0 0 100 100"
             className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-400/80"
@@ -155,7 +155,7 @@ export const FooterEmblems: React.FC<FooterEmblemsProps> = ({ onAdminClick }) =>
         title="Seguridad e Integridad"
       >
         <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-900 to-indigo-950 flex items-center justify-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-radial from-indigo-500/10 via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-indigo-500/10 opacity-50" />
           <svg
             viewBox="0 0 100 100"
             className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-400/80"

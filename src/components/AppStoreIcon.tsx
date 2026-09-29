@@ -18,7 +18,6 @@ export const AppStoreIcon: React.FC<AppStoreIconProps> = ({
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTapRef.current;
     if (tapLength < 350 && tapLength > 0) {
-      e.preventDefault();
       onDoubleClick();
     }
     lastTapRef.current = currentTime;

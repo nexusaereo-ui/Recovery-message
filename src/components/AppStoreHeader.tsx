@@ -7,7 +7,7 @@ interface AppStoreHeaderProps {
 
 export const AppStoreHeader: React.FC<AppStoreHeaderProps> = ({ onOpenMobileMenu }) => {
   return (
-    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center justify-between">
+    <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 sm:px-6 py-2.5 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileMenu}

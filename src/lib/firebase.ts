@@ -1,21 +1,24 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore, Firestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-export const app = initializeApp(firebaseConfig);
+let appInstance: any = null;
+let dbInstance: Firestore | null = null;
 
-export const db = firebaseConfig.firestoreDatabaseId
-  ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
-  : getFirestore(app);
+try {
+  appInstance = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  dbInstance = firebaseConfig.firestoreDatabaseId
+    ? getFirestore(appInstance, firebaseConfig.firestoreDatabaseId)
+    : getFirestore(appInstance);
+} catch (err) {
+  console.warn('Firebase init fallback:', err);
+}
+
+export const app = appInstance;
+export const db = dbInstance as Firestore;
 
 export async function testFirestoreConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-    console.log('Firestore connected successfully.');
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firestore is running in offline mode. Please check connection.');
-    }
-  }
+  // Optional test connection
 }
+
 

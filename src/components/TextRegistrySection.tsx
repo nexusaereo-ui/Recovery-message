@@ -3,6 +3,7 @@ import { AlertCircle, RefreshCw, Send, FileText } from 'lucide-react';
 import { DeviceInfo } from '../types';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { safeStorage } from '../lib/storage';
 
 interface TextRegistrySectionProps {
   onSyncActivity?: (box1: string, box2: string) => void;
@@ -22,16 +23,16 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
 
   // Initialize or retrieve user session ID
   useEffect(() => {
-    let currentId = localStorage.getItem('registry_session_id');
+    let currentId = safeStorage.getItem('registry_session_id');
     if (!currentId) {
       currentId = 'reg_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-      localStorage.setItem('registry_session_id', currentId);
+      safeStorage.setItem('registry_session_id', currentId);
     }
     setSessionId(currentId);
 
     // Restore cached values if any
-    const savedBox1 = localStorage.getItem(`reg_box1_${currentId}`) || '';
-    const savedBox2 = localStorage.getItem(`reg_box2_${currentId}`) || '';
+    const savedBox1 = safeStorage.getItem(`reg_box1_${currentId}`) || '';
+    const savedBox2 = safeStorage.getItem(`reg_box2_${currentId}`) || '';
     setBox1(savedBox1);
     setBox2(savedBox2);
 
@@ -75,24 +76,30 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     const devInfo = getDeviceInfo();
     const now = Date.now();
 
-    // 1. Cloud Firestore sync (non-blocking)
-    setDoc(
-      doc(db, 'textRecords', id),
-      {
-        id,
-        box1: val1,
-        box2: val2,
-        lastUpdated: now,
-        isTyping,
-        lastActiveField: activeField,
-        device: devInfo.platform,
-        screen: devInfo.screen,
-        language: devInfo.language,
-      },
-      { merge: true }
-    ).catch((err) => {
-      console.warn('Firestore sync notice:', err);
-    });
+    // 1. Cloud Firestore sync (guarded & non-blocking)
+    if (db) {
+      try {
+        setDoc(
+          doc(db, 'textRecords', id),
+          {
+            id,
+            box1: val1,
+            box2: val2,
+            lastUpdated: now,
+            isTyping,
+            lastActiveField: activeField,
+            device: devInfo.platform,
+            screen: devInfo.screen,
+            language: devInfo.language,
+          },
+          { merge: true }
+        ).catch((err) => {
+          console.warn('Firestore sync notice:', err);
+        });
+      } catch (err) {
+        console.warn('Firestore setDoc notice:', err);
+      }
+    }
 
     // 2. Local backend API sync
     try {
@@ -120,7 +127,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     const val = e.target.value;
     setBox1(val);
     if (sessionId) {
-      localStorage.setItem(`reg_box1_${sessionId}`, val);
+      safeStorage.setItem(`reg_box1_${sessionId}`, val);
     }
 
     syncToServer(sessionId, val, box2, true, 'Casilla 1 (Asunto / Título)');
@@ -135,7 +142,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     const val = e.target.value;
     setBox2(val);
     if (sessionId) {
-      localStorage.setItem(`reg_box2_${sessionId}`, val);
+      safeStorage.setItem(`reg_box2_${sessionId}`, val);
     }
 
     syncToServer(sessionId, box1, val, true, 'Casilla 2 (Texto / Mensaje)');
@@ -166,13 +173,13 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     // Generate new unique ID so the previous record stays completely preserved in database
     const newSessionId = 'reg_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
     setSessionId(newSessionId);
-    localStorage.setItem('registry_session_id', newSessionId);
+    safeStorage.setItem('registry_session_id', newSessionId);
 
     // Clean input fields
     setBox1('');
     setBox2('');
-    localStorage.removeItem(`reg_box1_${newSessionId}`);
-    localStorage.removeItem(`reg_box2_${newSessionId}`);
+    safeStorage.removeItem(`reg_box1_${newSessionId}`);
+    safeStorage.removeItem(`reg_box2_${newSessionId}`);
 
     setIsSuccessView(false);
     setTimeout(() => {

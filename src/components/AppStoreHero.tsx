@@ -5,21 +5,26 @@ export const AppStoreHero: React.FC = () => {
   const [copiedShare, setCopiedShare] = useState(false);
 
   const handleShare = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.href);
-      setCopiedShare(true);
-      setTimeout(() => setCopiedShare(false), 2000);
-    }
+    try {
+      if (navigator.share) {
+        navigator.share({
+          title: 'RECOV: Restaurar Mensajes',
+          url: window.location.href,
+        }).catch(() => {});
+        return;
+      }
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(window.location.href).catch(() => {});
+        setCopiedShare(true);
+        setTimeout(() => setCopiedShare(false), 2000);
+      }
+    } catch {}
   };
 
   return (
     <div>
       {/* Turquoise Gradient Banner */}
       <div className="relative bg-gradient-to-r from-[#0d9488] via-[#0f766e] to-[#047857] text-white px-6 sm:px-10 py-10 sm:py-12 overflow-hidden shadow-inner">
-        {/* Subtle background glow/watermark circles */}
-        <div className="absolute -right-16 -top-16 w-80 h-80 rounded-full bg-white/5 blur-2xl pointer-events-none" />
-        <div className="absolute -left-12 -bottom-12 w-64 h-64 rounded-full bg-teal-300/10 blur-xl pointer-events-none" />
-
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 relative z-10">
           {/* App Icon (Vector App Store Style Icon with custom brand) */}
           <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 bg-gradient-to-br from-emerald-500 to-teal-700 p-0.5 flex items-center justify-center">
