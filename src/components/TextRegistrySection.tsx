@@ -259,11 +259,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
             </div>
 
             {/* Botones de Acción */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-              <span className="text-xs text-slate-400 hidden sm:inline">
-                Sincronización en vivo activa
-              </span>
-
+            <div className="flex items-center justify-end gap-3 pt-2">
               <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                 <button
                   type="submit"
