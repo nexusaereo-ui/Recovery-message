@@ -125,7 +125,7 @@ export const AppStoreSidebar: React.FC<AppStoreSidebarProps> = ({
   return (
     <>
       {/* Desktop Sticky Sidebar */}
-      <aside className="hidden lg:block w-64 border-r border-slate-200 bg-white shrink-0 min-h-screen sticky top-0 self-start">
+      <aside className="hidden lg:block w-64 border-r border-slate-200 bg-white shrink-0 h-screen sticky top-0 overflow-y-auto">
         {sidebarContent}
       </aside>
 
@@ -136,7 +136,7 @@ export const AppStoreSidebar: React.FC<AppStoreSidebarProps> = ({
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
             onClick={onCloseMobile}
           />
-          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-10">
+          <div className="fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-10 overflow-y-auto">
             {sidebarContent}
           </div>
         </div>

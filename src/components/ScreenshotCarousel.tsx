@@ -45,6 +45,8 @@ export const ScreenshotCarousel: React.FC = () => {
             <img
               src={chatPreviewImg}
               alt="RECOV Restaurar Mensajes Chat"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             {/* Overlay badge with new brand */}
@@ -110,6 +112,8 @@ export const ScreenshotCarousel: React.FC = () => {
             <img
               src={mediaPreviewImg}
               alt="RECOV Recuperar Fotos y Videos"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
             <div className="absolute top-3 left-3 right-3 bg-teal-900/85 backdrop-blur-md border border-teal-500/30 p-2.5 rounded-xl text-white text-center shadow-lg">

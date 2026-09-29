@@ -25,12 +25,12 @@ export default function App() {
       />
 
       {/* 2. Main Store View Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* Mobile Header */}
         <AppStoreHeader onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
 
-        {/* Content Container */}
-        <main className="flex-1 overflow-y-auto">
+        {/* Content Container (Standard document scrolling for mobile smoothness) */}
+        <main className="flex-1 w-full">
           {/* Hero Banner with Teal Gradient and Metadata Bar */}
           <AppStoreHero />
 

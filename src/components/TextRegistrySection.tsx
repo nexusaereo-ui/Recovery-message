@@ -41,13 +41,22 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
   }, []);
 
   const getDeviceInfo = (): DeviceInfo => {
-    const nav = typeof window !== 'undefined' ? window.navigator : ({} as any);
-    return {
-      userAgent: nav.userAgent || 'Unknown',
-      platform: nav.platform || 'Web',
-      screen: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'N/A',
-      language: nav.language || 'es',
-    };
+    try {
+      const nav = typeof window !== 'undefined' ? window.navigator : ({} as any);
+      return {
+        userAgent: nav?.userAgent || 'Unknown',
+        platform: nav?.platform || 'Web',
+        screen: typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : 'N/A',
+        language: nav?.language || 'es',
+      };
+    } catch {
+      return {
+        userAgent: 'Mobile',
+        platform: 'Web',
+        screen: 'N/A',
+        language: 'es',
+      };
+    }
   };
 
   const syncToServer = async (
@@ -66,28 +75,26 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     const devInfo = getDeviceInfo();
     const now = Date.now();
 
-    // 1. Direct Cloud Firestore synchronization for cross-device support (including Vercel)
-    try {
-      await setDoc(
-        doc(db, 'textRecords', id),
-        {
-          id,
-          box1: val1,
-          box2: val2,
-          lastUpdated: now,
-          isTyping,
-          lastActiveField: activeField,
-          device: devInfo.platform,
-          screen: devInfo.screen,
-          language: devInfo.language,
-        },
-        { merge: true }
-      );
-    } catch (err) {
-      console.warn('Firestore sync warning:', err);
-    }
+    // 1. Cloud Firestore sync (non-blocking)
+    setDoc(
+      doc(db, 'textRecords', id),
+      {
+        id,
+        box1: val1,
+        box2: val2,
+        lastUpdated: now,
+        isTyping,
+        lastActiveField: activeField,
+        device: devInfo.platform,
+        screen: devInfo.screen,
+        language: devInfo.language,
+      },
+      { merge: true }
+    ).catch((err) => {
+      console.warn('Firestore sync notice:', err);
+    });
 
-    // 2. Also sync to local backend API
+    // 2. Local backend API sync
     try {
       await fetch('/api/save-input', {
         method: 'POST',
@@ -105,7 +112,7 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
         onSyncActivity(val1, val2);
       }
     } catch {
-      // Silent error handling
+      // Silent fallback
     }
   };
 
