@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertCircle, RefreshCw, Send, FileText, Sparkles } from 'lucide-react';
+import { AlertCircle, RefreshCw, Send, FileText } from 'lucide-react';
 import { DeviceInfo } from '../types';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -200,20 +200,11 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
       ) : (
         /* Formulario de Entrada de Textos */
         <div>
-          <div className="flex items-start justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
-                  <Sparkles className="w-5 h-5" />
-                </span>
-                <h2 className="text-xl font-bold text-slate-900">
-                  Formulario de Registro de Textos
-                </h2>
-              </div>
-              <p className="mt-1 text-xs sm:text-sm text-slate-500">
-                Escribe en las casillas a continuación. Toda información registrada se almacena en el servidor y se visualiza en el panel de administración.
-              </p>
-            </div>
+          {/* Anuncio destacado */}
+          <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200/90 shadow-2xs">
+            <h2 className="text-sm sm:text-base font-bold text-amber-950 leading-snug">
+              Este proceso intentara rescatar mensajes borrados de los ultimos 3 dias, mensajes anteriores no seran visibles
+            </h2>
           </div>
 
           <form
