@@ -462,7 +462,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                     <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                          Casilla 1 (correo de perfil)
+                          Casilla 1 (Asunto / Identificador)
                         </span>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] text-slate-500">
@@ -496,7 +496,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
                     <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                          Casilla 2 (Contraseña de cuenta)
+                          Casilla 2 (Texto / Mensaje)
                         </span>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] text-slate-500">
