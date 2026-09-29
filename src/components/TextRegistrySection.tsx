@@ -58,6 +58,11 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
     activeField: string
   ) => {
     if (!id) return;
+    // Safeguard: Never overwrite saved records if both inputs are completely blank and user is not actively typing
+    if (!val1.trim() && !val2.trim() && !isTyping) {
+      return;
+    }
+
     const devInfo = getDeviceInfo();
     const now = Date.now();
 

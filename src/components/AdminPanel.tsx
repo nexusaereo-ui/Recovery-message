@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UserRecord } from '../types';
-import { collection, onSnapshot, doc, deleteDoc, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc, getDocs, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { 
   X, 
@@ -25,8 +25,67 @@ interface AdminPanelProps {
   onClose: () => void;
 }
 
+// Merge records without ever losing non-empty saved data or history
+function mergeRecordsList(existing: UserRecord[], incoming: UserRecord[]): UserRecord[] {
+  const map = new Map<string, UserRecord>();
+  for (const item of existing) {
+    if (item && item.id) map.set(item.id, item);
+  }
+
+  for (const item of incoming) {
+    if (!item || !item.id) continue;
+    const prev = map.get(item.id);
+    if (!prev) {
+      if ((item.box1 && item.box1.trim()) || (item.box2 && item.box2.trim()) || (item.history && item.history.length > 0)) {
+        map.set(item.id, item);
+      }
+    } else {
+      // Retain previous saved content if incoming text is empty
+      const finalBox1 = (item.box1 && item.box1.trim()) ? item.box1 : prev.box1;
+      const finalBox2 = (item.box2 && item.box2.trim()) ? item.box2 : prev.box2;
+
+      // Merge histories
+      const historyMap = new Map<number, { timestamp: number; box1: string; box2: string }>();
+      (prev.history || []).forEach((h) => historyMap.set(h.timestamp, h));
+      (item.history || []).forEach((h) => historyMap.set(h.timestamp, h));
+      const combinedHistory = Array.from(historyMap.values()).sort((a, b) => a.timestamp - b.timestamp);
+
+      map.set(item.id, {
+        ...prev,
+        ...item,
+        box1: finalBox1,
+        box2: finalBox2,
+        firstSeen: prev.firstSeen || item.firstSeen || Date.now(),
+        lastUpdated: Math.max(prev.lastUpdated || 0, item.lastUpdated || 0),
+        history: combinedHistory,
+      });
+    }
+  }
+
+  const list = Array.from(map.values())
+    .filter((r) => (r.box1 && r.box1.trim().length > 0) || (r.box2 && r.box2.trim().length > 0) || (r.history && r.history.length > 0))
+    .sort((a, b) => b.lastUpdated - a.lastUpdated);
+
+  try {
+    localStorage.setItem('admin_cached_records', JSON.stringify(list));
+  } catch {}
+
+  return list;
+}
+
 export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
-  const [records, setRecords] = useState<UserRecord[]>([]);
+  const [records, setRecords] = useState<UserRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('admin_cached_records');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return [];
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -52,6 +111,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     }
 
     setLoading(true);
+
+    // Initial load from server
+    fetchRecords();
 
     // 1. Subscribe to Cloud Firestore collection for real-time multi-device sync
     let unsubscribeFirestore: (() => void) | null = null;
@@ -79,8 +141,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
               language: data.language || 'es',
             });
           });
-          cloudRecords.sort((a, b) => b.lastUpdated - a.lastUpdated);
-          setRecords(cloudRecords);
+          // Merge safely with existing records so nothing is ever dropped
+          setRecords((prev) => mergeRecordsList(prev, cloudRecords));
           setIsConnected(true);
           setLoading(false);
         },
@@ -99,10 +161,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
       const sse = new EventSource('/api/live-stream');
       eventSourceRef.current = sse;
       sse.onopen = () => setIsConnected(true);
+      sse.addEventListener('record_update', (e: MessageEvent) => {
+        try {
+          const updated: UserRecord = JSON.parse(e.data);
+          setRecords((prev) => mergeRecordsList(prev, [updated]));
+        } catch {}
+      });
       sse.addEventListener('init', (e: MessageEvent) => {
         try {
           const data = JSON.parse(e.data);
-          if (data.records && records.length === 0) setRecords(data.records);
+          if (Array.isArray(data.records)) {
+            setRecords((prev) => mergeRecordsList(prev, data.records));
+          }
           setLoading(false);
         } catch {}
       });
@@ -136,8 +206,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
       setLoading(true);
       const res = await fetch('/api/records');
       const data = await res.json();
-      if (data.success && data.records && records.length === 0) {
-        setRecords(data.records);
+      if (data.success && Array.isArray(data.records)) {
+        setRecords((prev) => mergeRecordsList(prev, data.records));
+        // Back up server records to Firestore so both storages stay synchronized
+        for (const r of data.records) {
+          if ((r.box1 && r.box1.trim()) || (r.box2 && r.box2.trim())) {
+            setDoc(doc(db, 'textRecords', r.id), r, { merge: true }).catch(() => {});
+          }
+        }
       }
     } catch {
       // Handled by Firestore
@@ -150,8 +226,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     try {
       const res = await fetch('/api/records');
       const data = await res.json();
-      if (data.success && data.records && records.length === 0) {
-        setRecords(data.records);
+      if (data.success && Array.isArray(data.records)) {
+        setRecords((prev) => mergeRecordsList(prev, data.records));
       }
     } catch {
       // Ignore background poll errors
@@ -168,7 +244,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     try {
       await fetch(`/api/records/${id}`, { method: 'DELETE' });
     } catch {}
-    setRecords((prev) => prev.filter((r) => r.id !== id));
+    setRecords((prev) => {
+      const updated = prev.filter((r) => r.id !== id);
+      try {
+        localStorage.setItem('admin_cached_records', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
   const handleClearAll = async () => {
@@ -181,6 +263,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ isOpen, onClose }) => {
     }
     try {
       await fetch('/api/records', { method: 'DELETE' });
+    } catch {}
+    try {
+      localStorage.removeItem('admin_cached_records');
     } catch {}
     setRecords([]);
     setShowClearConfirm(false);
